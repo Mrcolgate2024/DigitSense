@@ -9,6 +9,7 @@ import time
 from PIL import Image, ImageOps
 from streamlit_drawable_canvas import st_canvas
 import altair as alt
+import io
 
 # Canvas and Image Settings
 IMG_SIZE = 28  # Target size for the model (28x28)
@@ -260,8 +261,6 @@ if nav == "Draw image":
         elif model_choice == "Voting Classifier":
             # No probability chart for the voting classifier
             st.write("Note: The Voting Classifier with SVM does not provide probabilities, so no chart is available.")
-            
-
 if nav == "Camera image":
     # Main section for the page
     st.title("📸 Predict using camera image")
@@ -272,11 +271,17 @@ if nav == "Camera image":
 
     # Check if an image was captured
     if image is not None:
+        # Convert the image from UploadedFile to a PIL Image
+        img = Image.open(image)
+
+        # Convert the image to a NumPy array for processing
+        img_array = np.array(img)
+
         # Display the captured image
-        st.image(image, caption="Captured Image", use_container_width=True)
+        st.image(img_array, caption="Captured Image", use_container_width=True)
 
         # Preprocess the captured image
-        processed_image = preprocess_image(image)
+        processed_image = preprocess_image(img_array)
 
         # Predict the digit using the selected model
         if model_choice == "Extra Trees":
@@ -323,66 +328,8 @@ if nav == "Camera image":
             # No probability chart for the voting classifier
             st.write("Note: The Voting Classifier with SVM does not provide probabilities, so no chart is available.")
 
-        # Capture an image when the button is clicked
-        if st.button("Capture Image"):
-            # Capture a frame
-            ret, frame = cap.read()
-            if ret:
-                # Display the captured image
-                st.image(frame, caption="Captured Image", use_container_width=True)
-
-                # Preprocess the captured image
-                processed_image = preprocess_image(frame)
-
-                # Predict the digit using the selected model
-                if model_choice == "Extra Trees":
-                    prediction = extratree_model.predict(processed_image)
-                # else:
-                #     prediction = voting_model.predict(processed_image)
-                
-                predicted_digit = prediction[0]
-
-                # Display the predicted digit
-                st.write(f"**Predicted Digit:** {predicted_digit}")
-
-                # Handle probability outputs
-                if model_choice == "Extra Trees":
-                    outputs = extratree_model.predict_proba(processed_image).squeeze()
-                    percent_outputs = outputs * 100
-
-                    # Create a DataFrame with probabilities
-                    chart_data = pd.DataFrame(percent_outputs, index=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], columns=['Probability'])
-                    
-                    # Create the bar chart with Altair
-                    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(
-                        x=alt.X('index:N', title='Digits'),
-                        y='Probability:Q',
-                        color=alt.Color('index:N', scale=alt.Scale(scheme='blues'), legend=None),
-                        tooltip=['index:N', 'Probability:Q']
-                    )
-                    
-                    # Add text labels on top of the bars
-                    labels = bars.mark_text(
-                        align='center',
-                        baseline='bottom',
-                        dy=-5,
-                        color='black'
-                    ).encode(
-                        text=alt.Text('Probability:Q', format='.0f')
-                    )
-                    
-                    # Combine the bars and the labels into one chart
-                    chart = bars + labels
-                    
-                    # Display the chart
-                    st.altair_chart(chart, use_container_width=True)
-                
-                elif model_choice == "Voting Classifier":
-                    # No probability chart for the voting classifier
-                    st.write("Note: The Voting Classifier with SVM does not provide probabilities, so no chart is available.")
-
-        # Release the camera when done
-        cap.release()
-
 # Suppress specific sklearn warnings
 warnings.filterwarnings("ignore", message=".*X does not have valid feature names.*")
+           
+
+
