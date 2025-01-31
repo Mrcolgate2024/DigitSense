@@ -267,13 +267,62 @@ if nav == "Camera image":
     st.title("📸 Predict using camera image")
     st.write("Take a picture of a digit using the camera on the computer to predict the number")
 
-    # Initialize the webcam
-    cap = cv2.VideoCapture(0)
-    
-    # Check if the camera is opened correctly
-    if not cap.isOpened():
-        st.write("Error: Could not open webcam.")
-    else:
+    # Use Streamlit's camera input
+    image = st.camera_input("Capture Image")
+
+    # Check if an image was captured
+    if image is not None:
+        # Display the captured image
+        st.image(image, caption="Captured Image", use_container_width=True)
+
+        # Preprocess the captured image
+        processed_image = preprocess_image(image)
+
+        # Predict the digit using the selected model
+        if model_choice == "Extra Trees":
+            prediction = extratree_model.predict(processed_image)
+        
+        predicted_digit = prediction[0]
+
+        # Display the predicted digit
+        st.write(f"**Predicted Digit:** {predicted_digit}")
+
+        # Handle probability outputs
+        if model_choice == "Extra Trees":
+            outputs = extratree_model.predict_proba(processed_image).squeeze()
+            percent_outputs = outputs * 100
+
+            # Create a DataFrame with probabilities
+            chart_data = pd.DataFrame(percent_outputs, index=['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], columns=['Probability'])
+            
+            # Create the bar chart with Altair
+            bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(
+                x=alt.X('index:N', title='Digits'),
+                y='Probability:Q',
+                color=alt.Color('index:N', scale=alt.Scale(scheme='blues'), legend=None),
+                tooltip=['index:N', 'Probability:Q']
+            )
+            
+            # Add text labels on top of the bars
+            labels = bars.mark_text(
+                align='center',
+                baseline='bottom',
+                dy=-5,
+                color='black'
+            ).encode(
+                text=alt.Text('Probability:Q', format='.0f')
+            )
+            
+            # Combine the bars and the labels into one chart
+            chart = bars + labels
+            
+            # Display the chart
+            st.altair_chart(chart, use_container_width=True)
+
+        elif model_choice == "Voting Classifier":
+            # No probability chart for the voting classifier
+            st.write("Note: The Voting Classifier with SVM does not provide probabilities, so no chart is available.")
+
         # Capture an image when the button is clicked
         if st.button("Capture Image"):
             # Capture a frame
