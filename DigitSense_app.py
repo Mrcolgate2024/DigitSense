@@ -20,7 +20,7 @@ IMG_SIZE = 28  # Target size for the model (28x28)
 
 # ========================== Sidebar Navigation ==========================
 # Sidebar for navigation
-st.sidebar.title("🧠 AI-Powered Digit Recognition")
+st.sidebar.title("🧠 AI DigitSense")
 
 # Centered profile picture and name
 st.sidebar.image('IMG_6025.jpg', use_container_width=True, caption="")
@@ -58,18 +58,18 @@ def load_models():
 
     # Define the relative paths to the model files
     extratree_model_path = os.path.join(current_dir, 'extra_trees_clf.pkl')
-    voting_model_path = os.path.join(current_dir, 'mnist_voting_clf.pkl')
-    scaler_model_path = os.path.join(current_dir, 'mnist_scaler.pkl')
+    # voting_model_path = os.path.join(current_dir, 'mnist_voting_clf.pkl')
+    # scaler_model_path = os.path.join(current_dir, 'mnist_scaler.pkl')
 
     # Load the Extra Trees and Voting Classifier models
     extratree_model = joblib.load(extratree_model_path)
-    voting_model = joblib.load(voting_model_path)
-    scaler_model = joblib.load(scaler_model_path)
+    # voting_model = joblib.load(voting_model_path)
+    # scaler_model = joblib.load(scaler_model_path)
 
-    return extratree_model, voting_model, scaler_model
+    return extratree_model
 
 # Load the models using the defined function
-extratree_model, voting_model, scaler_model = load_models()
+extratree_model = load_models()
 
 
 # ========================== Image Preprocessing ==========================
@@ -139,8 +139,8 @@ if nav == "Upload image":
         # Predict the digit using the selected model
         if model_choice == "Extra Trees":
             prediction = extratree_model.predict(processed_image)
-        else:
-            prediction = voting_model.predict(processed_image)
+        # else:
+        #     prediction = voting_model.predict(processed_image)
         
         predicted_digit = prediction[0]
 
@@ -213,8 +213,8 @@ if nav == "Draw image":
         
         if model_choice == "Extra Trees":
             outputs = extratree_model.predict_proba(array).squeeze()  # Get probability predictions
-        else:
-            outputs = voting_model.predict(array)  # Predict using the voting classifier
+        # else:
+        #     outputs = voting_model.predict(array)  # Predict using the voting classifier
         
         # Display progress bar while predicting
         progress_bar = st.progress(0)
@@ -288,8 +288,8 @@ if nav == "Camera image":
                 # Predict the digit using the selected model
                 if model_choice == "Extra Trees":
                     prediction = extratree_model.predict(processed_image)
-                else:
-                    prediction = voting_model.predict(processed_image)
+                # else:
+                #     prediction = voting_model.predict(processed_image)
                 
                 predicted_digit = prediction[0]
 
