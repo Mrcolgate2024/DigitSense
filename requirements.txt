@@ -7,4 +7,3 @@ opencv-python
 pillow
 streamlit-drawable-canvas
 altair
-warnings
