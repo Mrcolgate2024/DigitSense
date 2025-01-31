@@ -67,7 +67,7 @@ streamlit run DigitSense_app.py
 
 🔹 **Enhance UI with animations and custom themes**
 
-🔹 **Deploy the app online for public access**
+🔹 **Deploy the app online for public access . https://digitsense.streamlit.app/**
 
 
 ---
