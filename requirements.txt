@@ -6,8 +6,5 @@ opencv-python
 pillow
 streamlit-drawable-canvas
 altair
-os
 cv2
 warnings
-time
-PIL
